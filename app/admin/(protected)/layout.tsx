@@ -27,9 +27,9 @@ export default async function AdminLayout({
   ];
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="flex min-h-screen">
-        <aside className="hidden w-72 shrink-0 border-r border-gray-200 bg-white md:block dark:border-gray-800 dark:bg-gray-900">
+    <main className="h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
+      <div className="flex h-full min-h-0">
+        <aside className="hidden h-full w-72 shrink-0 border-r border-gray-200 bg-white md:flex md:flex-col dark:border-gray-800 dark:bg-gray-900">
           <div className="border-b border-gray-200 p-6 dark:border-gray-800">
             <Link
               href="/"
@@ -41,7 +41,7 @@ export default async function AdminLayout({
               Restaurant admin
             </p>
           </div>
-          <Sidebar aria-label="Admin navigation" className="h-auto">
+          <Sidebar aria-label="Admin navigation" className="min-h-0 flex-1">
             <SidebarItems>
               <SidebarItemGroup>
                 {items.map(([label, href]) => (
@@ -59,7 +59,7 @@ export default async function AdminLayout({
           </form>
         </aside>
 
-        <section className="flex min-w-0 flex-1 flex-col">
+        <section className="flex min-h-0 min-w-0 flex-1 flex-col">
           <header className="border-b border-gray-200 bg-white p-4 md:hidden dark:border-gray-800 dark:bg-gray-900">
             <div className="flex items-center justify-between gap-3">
               <Link href="/admin" className="font-semibold">
@@ -85,7 +85,9 @@ export default async function AdminLayout({
               ))}
             </nav>
           </header>
-          <div className="p-4 sm:p-6 lg:p-8">{children}</div>
+          <div className="min-h-0 flex-1 overflow-hidden p-4 sm:p-6 lg:p-8">
+            {children}
+          </div>
         </section>
       </div>
     </main>

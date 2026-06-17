@@ -8,11 +8,13 @@ import {
   Select,
 } from "flowbite-react";
 import Link from "next/link";
+import { BookingSuccessDialog } from "@/app/BookingSuccessDialog";
 import { bookTable } from "@/lib/actions";
 import {
   getAvailableSlots,
   getHours,
   getMenuItems,
+  menuCategories,
   type HoursRecord,
 } from "@/lib/db";
 
@@ -25,7 +27,6 @@ type HomeProps = {
   }>;
 };
 
-const categories = ["Food", "Drinks", "Desserts"];
 const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export default async function Home({ searchParams }: HomeProps) {
@@ -149,12 +150,6 @@ export default async function Home({ searchParams }: HomeProps) {
               </div>
             </div>
 
-            {params.booked && (
-              <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800 dark:border-green-900 dark:bg-green-950 dark:text-green-200">
-                Reservation confirmed for {params.booked} on {selectedDate}.
-              </div>
-            )}
-
             {params.status && (
               <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
                 {params.status}
@@ -215,6 +210,14 @@ export default async function Home({ searchParams }: HomeProps) {
         </div>
       </section>
 
+      {params.booked && (
+        <BookingSuccessDialog
+          date={selectedDate}
+          partySize={selectedPeople}
+          time={params.booked}
+        />
+      )}
+
       <section className="border-y border-gray-200 bg-gray-50 py-10 dark:border-gray-800 dark:bg-gray-900">
         <div className="mx-auto grid max-w-7xl gap-4 px-4 sm:px-6 md:grid-cols-4 lg:px-8">
           {hours.map((day) => (
@@ -237,19 +240,19 @@ export default async function Home({ searchParams }: HomeProps) {
         <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <Badge color="success" className="mb-3 w-fit">
-              Sample menu
+              Pizza Roma menu
             </Badge>
-            <h2 className="text-3xl font-bold">Seasonal favorites</h2>
+            <h2 className="text-3xl font-bold">Italian favorites</h2>
           </div>
           <p className="max-w-xl text-sm text-gray-500 dark:text-gray-400">
-            Admins can update menu sections, pricing, tables, and hours from the
-            private dashboard.
+            A fuller Pizza Roma-style spread with salads, antipasti, pizzas,
+            pasta, grilled mains, desserts, and drinks.
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          {categories.map((category) => (
-            <Card key={category}>
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {menuCategories.map((category) => (
+            <Card key={category} className="[&>div]:justify-start">
               <h3 className="text-xl font-semibold">{category}</h3>
               <div className="divide-y divide-gray-200 dark:divide-gray-700">
                 {menuItems

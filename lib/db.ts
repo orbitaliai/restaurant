@@ -38,6 +38,90 @@ export type MenuItemRecord = {
   price_cents: number;
 };
 
+export const menuCategories = [
+  "Salads",
+  "Antipasti",
+  "Pizzas",
+  "Pasta",
+  "Meat",
+  "Desserts",
+  "Drinks",
+];
+
+const defaultMenuItems = [
+  ["Salads", "Spring Salad", "Mixed greens, tomato, sweet corn, egg, and tuna", 890],
+  ["Salads", "Napoli Salad", "Tomato, buffalo mozzarella, basil, olives, and oregano", 1090],
+  ["Salads", "Caesar Salad", "Romaine, chicken, parmesan, croutons, and Caesar dressing", 1190],
+  ["Salads", "Goat Cheese Salad", "Greens, warm goat cheese, walnuts, and balsamic glaze", 1250],
+  ["Salads", "Burrata Salad", "Burrata, cherry tomatoes, rocket, pesto, and olive oil", 1390],
+  ["Antipasti", "Dipu Chicken", "Crispy chicken bites with house dipping sauce", 890],
+  ["Antipasti", "Garlic Bread", "Toasted bread with garlic butter, parsley, and mozzarella", 590],
+  ["Antipasti", "Bruschetta Trio", "Tomato basil, tapenade, and ricotta with honey", 790],
+  ["Antipasti", "Eggplant Parmesan", "Layered eggplant, tomato sauce, mozzarella, and parmesan", 1190],
+  ["Antipasti", "Burrata with Pesto", "Creamy burrata with basil pesto and toasted focaccia", 1290],
+  ["Antipasti", "Pate and Cheese Board", "Selection of pates, cheeses, preserves, and bread", 1290],
+  ["Antipasti", "Fried Calamari", "Crisp calamari with lemon and garlic aioli", 1390],
+  ["Pizzas", "Margherita Pizza", "Tomato, mozzarella, basil, and extra virgin olive oil", 990],
+  ["Pizzas", "Prosciutto Pizza", "Tomato, mozzarella, cooked ham, and oregano", 1090],
+  ["Pizzas", "Diavola Pizza", "Tomato, mozzarella, spicy salami, chili, and oregano", 1190],
+  ["Pizzas", "Four Cheese Pizza", "Mozzarella, gorgonzola, provolone, and parmesan", 1290],
+  ["Pizzas", "Capricciosa Pizza", "Ham, mushrooms, artichokes, olives, tomato, and mozzarella", 1390],
+  ["Pizzas", "Napoli Pizza", "Tomato, mozzarella, anchovies, capers, olives, and oregano", 1290],
+  ["Pizzas", "Vegetarian Pizza", "Seasonal vegetables, tomato, mozzarella, and basil", 1250],
+  ["Pizzas", "Carbonara Pizza", "Mozzarella, pancetta, egg, parmesan, and black pepper", 1390],
+  ["Pizzas", "Pizza Roma", "Tomato, mozzarella, ham, mushrooms, rocket, and parmesan", 1490],
+  ["Pizzas", "Burrata Pizza", "Tomato, mozzarella, burrata, cherry tomatoes, and pesto", 1590],
+  ["Pasta", "Spaghetti Bolognese", "Slow-cooked beef ragout and parmesan", 1190],
+  ["Pasta", "Spaghetti Carbonara", "Pancetta, egg, pecorino, parmesan, and black pepper", 1250],
+  ["Pasta", "Penne Arrabbiata", "Spicy tomato sauce, garlic, chili, and parsley", 1090],
+  ["Pasta", "Tagliatelle Pesto", "Fresh basil pesto, pine nuts, parmesan, and olive oil", 1190],
+  ["Pasta", "Four Cheese Gnocchi", "Potato gnocchi in a creamy four-cheese sauce", 1290],
+  ["Pasta", "Lasagna al Forno", "Baked pasta with beef ragout, bechamel, and parmesan", 1390],
+  ["Pasta", "Seafood Linguine", "Prawns, mussels, tomato, garlic, and white wine", 1590],
+  ["Meat", "Milanese Escalope", "Breaded veal-style escalope with fries and lemon", 1390],
+  ["Meat", "Chicken Parmigiana", "Breaded chicken with tomato sauce, mozzarella, and basil", 1490],
+  ["Meat", "Vindaloo Chicken", "Spicy chicken vindaloo with rice", 1790],
+  ["Meat", "Grilled Sirloin", "Sirloin steak from the grill with roasted potatoes", 2090],
+  ["Meat", "Beef Tagliata", "Sliced beef, rocket, parmesan, cherry tomatoes, and balsamic", 2190],
+  ["Desserts", "Tiramisu", "Mascarpone cream, coffee-soaked sponge, and cocoa", 650],
+  ["Desserts", "Panna Cotta", "Vanilla cream with red berry coulis", 590],
+  ["Desserts", "Chocolate Coulant", "Warm chocolate cake with vanilla ice cream", 690],
+  ["Desserts", "Lemon Sorbet", "Refreshing lemon sorbet", 490],
+  ["Desserts", "Pizza Nutella", "Sweet baked dough with Nutella and hazelnuts", 790],
+  ["Drinks", "Half Bottle of Water", "Still water", 250],
+  ["Drinks", "Sparkling Water", "Chilled sparkling mineral water", 290],
+  ["Drinks", "Soft Drink", "Coca-Cola, Fanta, Sprite, or iced tea", 320],
+  ["Drinks", "Beer", "Draft or bottled beer", 350],
+  ["Drinks", "House Red Wine", "Glass of Italian-style house red", 390],
+  ["Drinks", "House White Wine", "Glass of fresh house white", 390],
+  ["Drinks", "Aperol Spritz", "Aperol, prosecco, soda, and orange", 750],
+  ["Drinks", "Coffee", "Freshly brewed coffee", 140],
+  ["Drinks", "Cappuccino", "Espresso with steamed milk", 250],
+] satisfies Array<[string, string, string, number]>;
+
+const originalSampleMenuNames = [
+  "Albariño",
+  "Basque Cheesecake",
+  "Charred Octopus",
+  "Chocolate Terrine",
+  "House Vermouth",
+  "Wild Mushroom Risotto",
+];
+
+const sparsePizzaRomaMenuNames = [
+  "Caesar Salad",
+  "Coffee",
+  "Dipu Chicken",
+  "Eggplant Parmesan",
+  "Grilled Sirloin",
+  "Half Bottle of Water",
+  "Milanese Escalope",
+  "Napoli Salad",
+  "Pate and Cheese Board",
+  "Spring Salad",
+  "Vindaloo Chicken",
+];
+
 const dbPath = join(process.cwd(), "data", "restaurant.sqlite");
 let db: DatabaseSync | undefined;
 
@@ -134,18 +218,39 @@ function seed(client: DatabaseSync) {
     .get() as { count: number };
 
   if (menuCount.count === 0) {
-    const insertItem = client.prepare(
-      "INSERT INTO menu_items (category, name, description, price_cents) VALUES (?, ?, ?, ?)",
+    insertDefaultMenu(client);
+  } else if (menuCount.count === originalSampleMenuNames.length) {
+    const menuNames = client
+      .prepare("SELECT name FROM menu_items ORDER BY name")
+      .all() as Array<{ name: string }>;
+    const isOriginalSample = menuNames.every(
+      (item, index) => item.name === originalSampleMenuNames[index],
     );
-    [
-      ["Food", "Charred Octopus", "Potato crema, smoked paprika, lemon", 2200],
-      ["Food", "Wild Mushroom Risotto", "Aged parmesan and herbs", 1950],
-      ["Drinks", "House Vermouth", "Citrus, olive, and soda", 900],
-      ["Drinks", "Albariño", "Bright white wine by the glass", 1100],
-      ["Desserts", "Basque Cheesecake", "Burnished top, seasonal compote", 850],
-      ["Desserts", "Chocolate Terrine", "Sea salt and olive oil", 900],
-    ].forEach((row) => insertItem.run(...row));
+
+    if (isOriginalSample) {
+      client.exec("DELETE FROM menu_items");
+      insertDefaultMenu(client);
+    }
+  } else if (menuCount.count === sparsePizzaRomaMenuNames.length) {
+    const menuNames = client
+      .prepare("SELECT name FROM menu_items ORDER BY name")
+      .all() as Array<{ name: string }>;
+    const isSparsePizzaRomaMenu = menuNames.every(
+      (item, index) => item.name === sparsePizzaRomaMenuNames[index],
+    );
+
+    if (isSparsePizzaRomaMenu) {
+      client.exec("DELETE FROM menu_items");
+      insertDefaultMenu(client);
+    }
   }
+}
+
+function insertDefaultMenu(client: DatabaseSync) {
+  const insertItem = client.prepare(
+    "INSERT INTO menu_items (category, name, description, price_cents) VALUES (?, ?, ?, ?)",
+  );
+  defaultMenuItems.forEach((row) => insertItem.run(...row));
 }
 
 export function getTables() {
@@ -157,7 +262,19 @@ export function getTables() {
 export function getMenuItems() {
   return database()
     .prepare(
-      "SELECT id, category, name, description, price_cents FROM menu_items ORDER BY category, name",
+      `SELECT id, category, name, description, price_cents FROM menu_items
+       ORDER BY
+        CASE category
+          WHEN 'Salads' THEN 1
+          WHEN 'Antipasti' THEN 2
+          WHEN 'Pizzas' THEN 3
+          WHEN 'Pasta' THEN 4
+          WHEN 'Meat' THEN 5
+          WHEN 'Desserts' THEN 6
+          WHEN 'Drinks' THEN 7
+          ELSE 8
+        END,
+        name`,
     )
     .all() as MenuItemRecord[];
 }

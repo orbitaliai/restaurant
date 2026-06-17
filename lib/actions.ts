@@ -91,16 +91,22 @@ export async function addTable(formData: FormData) {
 }
 
 export async function saveHours(formData: FormData) {
-  const weekday = Number(formData.get("weekday"));
-  const openTime = String(formData.get("openTime") ?? "17:00");
-  const closeTime = String(formData.get("closeTime") ?? "22:00");
-  const isClosed = formData.get("isClosed") === "on";
+  const weekdays = formData.getAll("weekday").map(Number);
 
-  if (Number.isInteger(weekday)) {
+  weekdays.forEach((weekday) => {
+    const openTime = String(formData.get(`openTime-${weekday}`) ?? "17:00");
+    const closeTime = String(formData.get(`closeTime-${weekday}`) ?? "22:00");
+    const isClosed = formData.get(`isClosed-${weekday}`) === "on";
+
+    if (!Number.isInteger(weekday)) {
+      return;
+    }
+
     updateHours(weekday, openTime, closeTime, isClosed);
-    revalidatePath("/");
-    revalidatePath("/admin/hours");
-  }
+  });
+
+  revalidatePath("/");
+  revalidatePath("/admin/hours");
 }
 
 export async function addMenuItem(formData: FormData) {

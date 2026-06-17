@@ -14,14 +14,14 @@ import {
   Textarea,
 } from "flowbite-react";
 import { addMenuItem } from "@/lib/actions";
-import { getMenuItems } from "@/lib/db";
+import { getMenuItems, menuCategories } from "@/lib/db";
 
 export default function MenuPage() {
   const menuItems = getMenuItems();
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[420px_1fr]">
-      <Card>
+    <div className="grid h-full min-h-0 items-start gap-6 xl:grid-cols-[420px_minmax(0,1fr)]">
+      <Card className="self-start">
         <Badge color="success" className="mb-2 w-fit">
           Menu
         </Badge>
@@ -32,9 +32,9 @@ export default function MenuPage() {
           <div>
             <Label htmlFor="category">Category</Label>
             <Select id="category" name="category" required>
-              <option>Food</option>
-              <option>Drinks</option>
-              <option>Desserts</option>
+              {menuCategories.map((category) => (
+                <option key={category}>{category}</option>
+              ))}
             </Select>
           </div>
           <div>
@@ -71,9 +71,9 @@ export default function MenuPage() {
         </form>
       </Card>
 
-      <Card>
+      <Card className="flex h-full min-h-0 flex-col">
         <h2 className="text-xl font-semibold">Menu items</h2>
-        <div className="overflow-x-auto">
+        <div className="min-h-0 flex-1 overflow-auto">
           <Table hoverable>
             <TableHead>
               <TableHeadCell>Category</TableHeadCell>
