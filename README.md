@@ -109,3 +109,4 @@ npm run format:check
 - Flowbite React
 - Tailwind CSS
 - SQLite through Node.js `node:sqlite`
+
