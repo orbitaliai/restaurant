@@ -4,19 +4,210 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: read
   packages: write
 
+concurrency:
+  group: deploy-main
+  cancel-in-progress: true
+
 jobs:
   deploy:
-    uses: orbitaliai/nucleus/.github/workflows/reusable-main-deploy.yml@v1.0.3
-    with:
-      app_port: ${{ vars.APP_PORT }}
-      namespace: ${{ vars.PRODUCTION_NAMESPACE }}
-      hosts: ${{ vars.PRODUCTION_HOSTS }}
-      env_secret_name: ${{ vars.PRODUCTION_ENV_SECRET_NAME }}
-    secrets:
-      deploy_api_url: ${{ secrets.DEPLOY_API_URL }}
-      deploy_api_key: ${{ secrets.DEPLOY_API_KEY }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DEPLOY_API_URL: ${{ secrets.DEPLOY_API_URL }}
+      DEPLOY_API_KEY: ${{ secrets.DEPLOY_API_KEY }}
+      APP_PORT: ${{ vars.APP_PORT || '3000' }}
+      NAMESPACE: ${{ vars.PRODUCTION_NAMESPACE }}
+      HOSTS: ${{ vars.PRODUCTION_HOSTS }}
+      ENV_SECRET_NAME: ${{ vars.PRODUCTION_ENV_SECRET_NAME }}
+      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate required configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(DEPLOY_API_URL DEPLOY_API_KEY NAMESPACE HOSTS)
+          for key in "${required[@]}"; do
+            if [ -z "${!key:-}" ]; then
+              echo "Missing required value: $key"
+              exit 1
+            fi
+          done
+
+          if ! [[ "$APP_PORT" =~ ^[0-9]+$ ]]; then
+            echo "APP_PORT must be a number"
+            exit 1
+          fi
+
+      - name: Compute deploy variables
+        id: vars
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          app_slug="$(printf '%s' "${GITHUB_REPOSITORY##*/}" | tr '[:upper:]' '[:lower:]')"
+
+          if [ -z "$app_slug" ]; then
+            echo "Repository name resolved to empty slug"
+            exit 1
+          fi
+
+          if [ "${#app_slug}" -gt 63 ]; then
+            app_slug="${app_slug:0:63}"
+            app_slug="$(printf '%s' "$app_slug" | sed -E 's/-+$//')"
+          fi
+
+          image_registry="ghcr.io/${GITHUB_REPOSITORY_OWNER}"
+          image_tag="${GITHUB_SHA}"
+
+          echo "app_slug=$app_slug" >> "$GITHUB_OUTPUT"
+          echo "image_registry=$image_registry" >> "$GITHUB_OUTPUT"
+          echo "image_tag=$image_tag" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.vars.outputs.image_registry }}/${{ steps.vars.outputs.app_slug }}:${{ steps.vars.outputs.image_tag }}
+
+      - name: Trigger deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          slug="${{ steps.vars.outputs.app_slug }}"
+          env_secret_name="${ENV_SECRET_NAME:-${slug}-env}"
+
+          payload=$(jq -n \
+            --arg namespace "$NAMESPACE" \
+            --arg slug "$slug" \
+            --arg hosts "$HOSTS" \
+            --arg registry "${{ steps.vars.outputs.image_registry }}" \
+            --arg tag "${{ steps.vars.outputs.image_tag }}" \
+            --arg env_secret_name "$env_secret_name" \
+            --argjson app_port "${APP_PORT:-3000}" \
+            '{namespace: $namespace, slug: $slug, hosts: $hosts, registry: $registry, tag: $tag, app_port: $app_port, env_secret_name: $env_secret_name}')
+
+          response=$(curl -sS -w '\n%{http_code}' -X POST "$DEPLOY_API_URL/deploy" \
+            -H 'content-type: application/json' \
+            -H "api-key: $DEPLOY_API_KEY" \
+            -d "$payload")
+
+          body=$(echo "$response" | sed '$d')
+          code=$(echo "$response" | tail -n1)
+
+          echo "Deploy response code: $code"
+
+          if [ "$code" != "200" ]; then
+            echo "$body"
+            exit 1
+          fi
+
+      - name: Poll rollout status
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          namespace="$NAMESPACE"
+          slug="${{ steps.vars.outputs.app_slug }}"
+
+          for attempt in $(seq 1 60); do
+            echo "Polling deployment status (attempt $attempt/60)"
+
+            response=$(curl -sS -w '\n%{http_code}' \
+              "$DEPLOY_API_URL/deploy/status?namespace=$namespace&slug=$slug" \
+              -H "api-key: $DEPLOY_API_KEY")
+
+            body=$(echo "$response" | sed '$d')
+            code=$(echo "$response" | tail -n1)
+
+            if [ "$code" != "200" ]; then
+              echo "Unexpected status code from /deploy/status: $code"
+              echo "$body"
+              exit 1
+            fi
+
+            phase=$(echo "$body" | jq -r '.phase // "unknown"')
+            echo "Current phase: $phase"
+
+            case "$phase" in
+              ready)
+                exit 0
+                ;;
+              failed|not_found)
+                exit 1
+                ;;
+            esac
+
+            sleep 10
+          done
+
+          echo "Timed out waiting for deployment readiness"
+          exit 1
+
+      - name: Send Slack notification on failure
+        if: failure() && env.SLACK_WEBHOOK != ''
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          payload: |
+            {
+              "text": "❌ Production deployment failed",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "❌ *Production deployment failed*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Repository:*\n${{ github.repository }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Branch:*\n${{ github.ref_name }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow:*\n${{ github.workflow }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Commit:*\n${{ github.sha }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View workflow run>"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK }}
