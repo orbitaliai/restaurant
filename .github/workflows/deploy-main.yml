@@ -1,0 +1,22 @@
+name: Deploy Production
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  deploy:
+    uses: orbitaliai/nucleus/.github/workflows/reusable-main-deploy.yml@v1.0.3
+    with:
+      app_port: ${{ vars.APP_PORT }}
+      namespace: ${{ vars.PRODUCTION_NAMESPACE }}
+      hosts: ${{ vars.PRODUCTION_HOSTS }}
+      env_secret_name: ${{ vars.PRODUCTION_ENV_SECRET_NAME }}
+    secrets:
+      deploy_api_url: ${{ secrets.DEPLOY_API_URL }}
+      deploy_api_key: ${{ secrets.DEPLOY_API_KEY }}

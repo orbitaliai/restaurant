@@ -1,7 +1,8 @@
 {
-  "name": "flowbite-react-template-nextjs",
+  "name": "restaurant-reservations-demo",
   "version": "0.1.0",
-  "private": true,
+  "description": "A Next.js demo app for restaurant reservations with an Orbitali agent integration.",
+  "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
