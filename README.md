@@ -45,6 +45,8 @@ Open http://localhost:3000/admin to use the admin area.
 
 ## REST API
 
+See [API.md](API.md) for the full API usage guide, request fields, response examples, and error handling.
+
 All endpoints require this header:
 
 ```http
