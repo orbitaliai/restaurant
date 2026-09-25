@@ -379,7 +379,7 @@ export function createBooking(input: {
     throw new Error("No table is available for that time.");
   }
 
-  database()
+  const result = database()
     .prepare(
       `INSERT INTO bookings (guest_name, guest_email, party_size, booking_date, booking_time, table_id)
        VALUES (?, ?, ?, ?, ?, ?)`,
@@ -392,6 +392,8 @@ export function createBooking(input: {
       input.bookingTime,
       table.id,
     );
+
+  return Number(result.lastInsertRowid);
 }
 
 export function createTable(name: string, capacity: number) {

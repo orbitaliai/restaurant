@@ -1,15 +1,16 @@
 {
   "name": "restaurant-reservations-demo",
   "version": "0.1.0",
-  "description": "A Next.js demo app for restaurant reservations with an Orbitali agent integration.",
+  "description": "A Next.js demo app for restaurant reservations with a REST API.",
   "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "format": "prettier . --write",
-    "format:check": "prettier . --check"
+    "format:check": "prettier . --check",
+    "test:api": "node --test tests/api.test.mjs"
   },
   "dependencies": {
     "flowbite-react": "^0.12.4",
