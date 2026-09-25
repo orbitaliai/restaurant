@@ -127,3 +127,49 @@ export async function addMenuItem(formData: FormData) {
     revalidatePath("/admin/menu");
   }
 }
+
+export async function saveFloorPlan(
+  layouts: import("./floor-plan").TableLayout[],
+) {
+  if (!(await ensureAdminSession()))
+    return { error: "Please sign in again to save your floor plan." };
+  const { isValidLayout } = await import("./floor-plan");
+  if (!Array.isArray(layouts) || !layouts.every(isValidLayout))
+    return { error: "Some table positions are invalid." };
+  try {
+    const { saveTableLayouts } = await import("./db");
+    saveTableLayouts(layouts);
+    revalidatePath("/admin/tables");
+    return { success: true };
+  } catch {
+    return { error: "Could not save the floor plan. Please try again." };
+  }
+}
+
+export async function createFloorTable(name: string, capacity: number) {
+  if (!(await ensureAdminSession()))
+    return { error: "Please sign in again to add a table." };
+  if (
+    !name.trim() ||
+    name.trim().length > 60 ||
+    !Number.isInteger(capacity) ||
+    capacity < 1 ||
+    capacity > 20
+  ) {
+    return { error: "Enter a table name and between 1 and 20 seats." };
+  }
+  try {
+    createTable(name.trim(), capacity);
+    const { getFloorTables } = await import("./db");
+    const tables = getFloorTables();
+    const table = tables.reduce((latest, item) =>
+      item.id > latest.id ? item : latest,
+    );
+    revalidatePath("/admin/tables");
+    revalidatePath("/admin");
+    revalidatePath("/");
+    return { table };
+  } catch {
+    return { error: "Could not add the table. Please try again." };
+  }
+}

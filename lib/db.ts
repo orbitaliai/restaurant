@@ -1,5 +1,7 @@
 "server-only";
 
+import type { TableLayout } from "./floor-plan";
+
 import { mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
@@ -143,6 +145,13 @@ function migrate(client: DatabaseSync) {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       capacity INTEGER NOT NULL CHECK (capacity > 0)
+    );
+
+    CREATE TABLE IF NOT EXISTS table_layouts (
+      table_id INTEGER PRIMARY KEY REFERENCES tables(id) ON DELETE CASCADE,
+      x REAL NOT NULL, y REAL NOT NULL,
+      width REAL NOT NULL, height REAL NOT NULL,
+      shape TEXT NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS operation_hours (
@@ -452,4 +461,32 @@ function fromMinutes(value: number) {
   const hours = Math.floor(value / 60);
   const minutes = value % 60;
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+}
+
+export function getFloorTables() {
+  const layouts = database().prepare("SELECT table_id AS id, x, y, width, height, shape FROM table_layouts").all() as TableLayout[];
+  return getTables().sort((a, b) => a.id - b.id).map((table, index) => ({
+    ...table,
+    x: 80 + (index % 4) * 220,
+    y: 80 + Math.floor(index / 4) * 190,
+    width: table.capacity > 4 ? 160 : 120,
+    height: 100,
+    shape: "rectangle" as const,
+    ...layouts.find((layout) => layout.id === table.id),
+  }));
+}
+
+export function saveTableLayouts(layouts: TableLayout[]) {
+  const client = database();
+  const update = client.prepare(`INSERT INTO table_layouts (table_id, x, y, width, height, shape)
+    VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(table_id) DO UPDATE SET
+    x=excluded.x, y=excluded.y, width=excluded.width, height=excluded.height, shape=excluded.shape`);
+  client.exec("BEGIN");
+  try {
+    for (const table of layouts) update.run(table.id, table.x, table.y, table.width, table.height, table.shape);
+    client.exec("COMMIT");
+  } catch (error) {
+    client.exec("ROLLBACK");
+    throw error;
+  }
 }
