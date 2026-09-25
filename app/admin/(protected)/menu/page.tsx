@@ -76,10 +76,12 @@ export default function MenuPage() {
         <div className="min-h-0 flex-1 overflow-auto">
           <Table hoverable>
             <TableHead>
-              <TableHeadCell>Category</TableHeadCell>
-              <TableHeadCell>Name</TableHeadCell>
-              <TableHeadCell>Description</TableHeadCell>
-              <TableHeadCell>Price</TableHeadCell>
+              <TableRow>
+                <TableHeadCell>Category</TableHeadCell>
+                <TableHeadCell>Name</TableHeadCell>
+                <TableHeadCell>Description</TableHeadCell>
+                <TableHeadCell>Price</TableHeadCell>
+              </TableRow>
             </TableHead>
             <TableBody className="divide-y">
               {menuItems.map((item) => (

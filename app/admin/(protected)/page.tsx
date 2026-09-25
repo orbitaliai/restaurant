@@ -52,11 +52,13 @@ export default function AdminDashboard() {
         <div className="overflow-x-auto">
           <Table hoverable>
             <TableHead>
-              <TableHeadCell>Guest</TableHeadCell>
-              <TableHeadCell>Date</TableHeadCell>
-              <TableHeadCell>Time</TableHeadCell>
-              <TableHeadCell>Party</TableHeadCell>
-              <TableHeadCell>Table</TableHeadCell>
+              <TableRow>
+                <TableHeadCell>Guest</TableHeadCell>
+                <TableHeadCell>Date</TableHeadCell>
+                <TableHeadCell>Time</TableHeadCell>
+                <TableHeadCell>Party</TableHeadCell>
+                <TableHeadCell>Table</TableHeadCell>
+              </TableRow>
             </TableHead>
             <TableBody className="divide-y">
               {nextBookings.map((booking) => (

@@ -37,10 +37,12 @@ export default function HoursPage() {
           <div className="min-h-0 flex-1 overflow-auto">
             <Table hoverable>
               <TableHead>
-                <TableHeadCell>Day</TableHeadCell>
-                <TableHeadCell>Open</TableHeadCell>
-                <TableHeadCell>Close</TableHeadCell>
-                <TableHeadCell>Closed</TableHeadCell>
+                <TableRow>
+                  <TableHeadCell>Day</TableHeadCell>
+                  <TableHeadCell>Open</TableHeadCell>
+                  <TableHeadCell>Close</TableHeadCell>
+                  <TableHeadCell>Closed</TableHeadCell>
+                </TableRow>
               </TableHead>
               <TableBody className="divide-y">
                 {hours.map((day) => (

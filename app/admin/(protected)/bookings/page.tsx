@@ -28,12 +28,14 @@ export default function BookingsPage() {
         <div className="overflow-x-auto">
           <Table hoverable>
             <TableHead>
-              <TableHeadCell>Guest</TableHeadCell>
-              <TableHeadCell>Email</TableHeadCell>
-              <TableHeadCell>Date</TableHeadCell>
-              <TableHeadCell>Time</TableHeadCell>
-              <TableHeadCell>Party</TableHeadCell>
-              <TableHeadCell>Table</TableHeadCell>
+              <TableRow>
+                <TableHeadCell>Guest</TableHeadCell>
+                <TableHeadCell>Email</TableHeadCell>
+                <TableHeadCell>Date</TableHeadCell>
+                <TableHeadCell>Time</TableHeadCell>
+                <TableHeadCell>Party</TableHeadCell>
+                <TableHeadCell>Table</TableHeadCell>
+              </TableRow>
             </TableHead>
             <TableBody className="divide-y">
               {bookings.map((booking) => (
